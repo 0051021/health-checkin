@@ -101,6 +101,27 @@ textarea.input{resize:vertical;min-height:64px}
 .tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:12px;background:var(--mint-soft);color:#27836f;margin-right:4px}
 .tag.eq{background:#eef1f8;color:#5a6480}
 .ex-add{border:1.5px dashed var(--accent);color:var(--accent);background:var(--accent-soft);border-radius:10px;padding:9px;text-align:center;font-size:13px;cursor:pointer;margin-top:6px}
+.ex-detail{font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;margin-left:8px}
+.ex-actions{display:flex;gap:8px;margin-top:6px}
+.ex-actions>*{flex:1;margin-top:0}
+
+/* 动作详情 */
+.anat-wrap{background:#faf9fc;border:1px solid var(--line);border-radius:14px;padding:12px 8px;margin-bottom:14px}
+.anat-legend{display:flex;justify-content:center;gap:16px;font-size:11px;color:var(--sub);margin-top:4px;flex-wrap:wrap}
+.anat-legend span{display:inline-flex;align-items:center;gap:5px}
+.anat-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.muscle-line{font-size:12.5px;line-height:1.7;margin-bottom:8px}
+.muscle-line b{color:var(--ink)}
+.ms-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:12px;margin:2px 4px 2px 0;font-weight:500}
+.ms-tag.pri{background:#efe9fa;color:#6f56a8}
+.ms-tag.sec{background:#e3f5ee;color:#2e8a70}
+.detail-sec{margin-top:14px}
+.detail-sec h4{font-size:13px;margin:0 0 6px;color:var(--ink)}
+.detail-sec p{font-size:12.5px;line-height:1.65;color:var(--sub);margin:0;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+.detail-sec.err p{background:#fff2f0;color:#a5483c}
+.video-btns{display:flex;gap:8px;margin-top:14px}
+.video-btns a{flex:1;text-align:center;font-size:12.5px;padding:10px;border-radius:10px;text-decoration:none;color:#fff;background:var(--accent)}
+.video-btns a.xhs{background:#ff4b66}
 
 /* 已选动作条目 */
 .picked{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
