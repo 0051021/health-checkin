@@ -159,13 +159,14 @@
   /* ============================================================
    * 弹层通用
    * ============================================================ */
-  function openSheet(title, html) {
+  function openSheet(title, html, onClose) {
     var root = $('#modalRoot');
     root.innerHTML = '<div class="mask"><div class="sheet">' +
       '<div class="sheet-head"><div class="t">' + esc(title) + '</div><div class="x" id="sheetClose">×</div></div>' +
       '<div id="sheetBody">' + html + '</div></div></div>';
-    $('.mask').addEventListener('click', function (e) { if (e.target.classList.contains('mask')) closeSheet(); });
-    $('#sheetClose').addEventListener('click', closeSheet);
+    function dismiss() { closeSheet(); if (onClose) onClose(); }
+    $('.mask').addEventListener('click', function (e) { if (e.target.classList.contains('mask')) dismiss(); });
+    $('#sheetClose').addEventListener('click', dismiss);
   }
   function closeSheet() { $('#modalRoot').innerHTML = ''; }
   function sheetBody() { return $('#sheetBody'); }
@@ -241,7 +242,7 @@
 
   function openExercisePicker() {
     var d = Store.load();
-    var lib = d.exerciseLib.length ? d.exerciseLib : Lib.PRESET;
+    var lib = Lib.enrich(d.exerciseLib);
     var state = { part: '全部', equip: '全部', kw: '' };
 
     function listHTML() {
@@ -256,9 +257,10 @@
         return '<div class="ex-item">' +
           '<div class="ex-head"><div><div class="ex-name">' + esc(e.name) + '</div>' +
           '<div class="ex-meta">' + e.parts.map(function (p) { return '<span class="tag">' + esc(p) + '</span>'; }).join('') +
-          '<span class="tag eq">' + esc(e.equipment) + '</span> · MET ' + e.met + '</div></div></div>' +
+          '<span class="tag eq">' + esc(e.equipment) + '</span> · MET ' + e.met + '</div></div>' +
+          '<span class="ex-detail" data-detail="' + esc(e.id) + '">发力详情 ›</span></div>' +
           '<div class="ex-cue">' + esc(e.cue) + '</div>' +
-          '<div class="ex-add" data-pick="' + esc(e.id) + '">+ 加入本次</div>' +
+          '<div class="ex-actions"><div class="ex-add" data-pick="' + esc(e.id) + '">+ 加入本次</div></div>' +
         '</div>';
       }).join('');
     }
@@ -291,6 +293,12 @@
           refresh();
         });
       });
+      $$('#exList [data-detail]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var e = lib.find(function (x) { return x.id === b.dataset.detail; });
+          if (e) openExerciseDetail(e, openExercisePicker);
+        });
+      });
     }
     bindList();
 
@@ -309,6 +317,30 @@
         $('#exList').innerHTML = listHTML(); bindList();
       });
     });
+  }
+
+  // 动作详情：发力区域图 + 要领 + 常见错误 + 教程搜索
+  function openExerciseDetail(e, back) {
+    var nameMap = Lib.MUSCLE_NAMES;
+    function tags(ids, cls) {
+      return (ids || []).map(function (id) {
+        return '<span class="ms-tag ' + cls + '">' + esc(nameMap[id] || id) + '</span>';
+      }).join('') || '<span style="font-size:12px;color:var(--muted)">—</span>';
+    }
+    var q = encodeURIComponent(e.video || e.name);
+    var html =
+      '<div class="anat-wrap">' +
+        (window.Anatomy ? Anatomy.render(e.muscles, e.synergists) + Anatomy.legend() : '<div class="empty-state"><div class="t">肌群图未加载</div></div>') +
+      '</div>' +
+      '<div class="muscle-line"><b>主发力：</b>' + tags(e.muscles, 'pri') + '</div>' +
+      '<div class="muscle-line"><b>协同：</b>' + tags(e.synergists, 'sec') + '</div>' +
+      '<div class="detail-sec"><h4>✅ 动作要领</h4><p>' + esc(e.cue || '—') + '</p></div>' +
+      '<div class="detail-sec err"><h4>⚠️ 常见错误</h4><p>' + esc(e.error || '暂无') + '</p></div>' +
+      '<div class="video-btns">' +
+        '<a href="https://search.bilibili.com/all?keyword=' + q + '" target="_blank" rel="noopener">▶ B站看教程</a>' +
+        '<a class="xhs" href="https://www.xiaohongshu.com/search_result?keyword=' + q + '" target="_blank" rel="noopener">▶ 小红书看教程</a>' +
+      '</div>';
+    openSheet(e.name, html, back);
   }
 
   function saveWorkout() {
