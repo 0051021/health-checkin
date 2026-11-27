@@ -367,9 +367,22 @@
 
   window.__appGo = go;
   window.__appInit = function () {
-    // 首次初始化动作库：为空则写入预置
+    // 动作库初始化/升级：
+    // - 空库 → 写入全部预置
+    // - libVersion < 3 → 追加缺失的预置动作（你手机上旧的22个会自动补到89个），保留自定义动作
+    // - 已升级过 → 不动，避免覆盖你改过的动作
     Store.update(function (d) {
-      if (!d.exerciseLib || !d.exerciseLib.length) d.exerciseLib = Lib.PRESET.slice();
+      if (!d.exerciseLib || !d.exerciseLib.length) {
+        d.exerciseLib = JSON.parse(JSON.stringify(Lib.PRESET));
+        d.libVersion = 3;
+      } else if ((d.libVersion || 1) < 3) {
+        var existing = {};
+        d.exerciseLib.forEach(function (e) { existing[e.id] = true; });
+        Lib.PRESET.forEach(function (p) {
+          if (!existing[p.id]) d.exerciseLib.push(JSON.parse(JSON.stringify(p)));
+        });
+        d.libVersion = 3;
+      }
     });
     var now = new Date();
     var wd = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
