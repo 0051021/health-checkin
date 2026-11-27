@@ -110,6 +110,7 @@ textarea.input{resize:vertical;min-height:64px}
 .anat-legend{display:flex;justify-content:center;gap:16px;font-size:11px;color:var(--sub);margin-top:4px;flex-wrap:wrap}
 .anat-legend span{display:inline-flex;align-items:center;gap:5px}
 .anat-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.anat-credit{text-align:center;font-size:10px;color:#b0a8bd;margin-top:6px}
 .muscle-line{font-size:12.5px;line-height:1.7;margin-bottom:8px}
 .muscle-line b{color:var(--ink)}
 .ms-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:12px;margin:2px 4px 2px 0;font-weight:500}
