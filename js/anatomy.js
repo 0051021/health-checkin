@@ -1,128 +1,119 @@
 /* ============================================================
  * anatomy.js —— 人体肌群图（内联 SVG，离线可用，无版权问题）
- * 提供正面/背面人体轮廓，按肌群 ID 高亮发力区域。
+ * 正/背面连贯人形轮廓，按肌群 ID 高亮发力区域。
  * 肌群 ID 与 lib.js MUSCLE_NAMES 一致。
  * ============================================================ */
 (function (global) {
   'use strict';
 
-  var BASE = '#e7e3ee';        // 未激活肌群底色
-  var PRIMARY = '#8b6fc4';     // 主发力肌群（主题紫）
-  var SECOND = '#57b79b';      // 协同肌群（薄荷绿）
+  var BODY     = '#f4eff3';   // 人形底色（暖灰，避免冷灰的"解剖感"）
+  var EDGE     = '#e3dbe7';   // 轮廓描边
+  var HAIR     = '#d6ccde';   // 头发剪影
+  var BASE     = '#ddd7e6';   // 未激活肌群
+  var PRIMARY  = '#8b6fc4';   // 主发力肌群（主题紫）
+  var SECOND   = '#57b79b';   // 协同肌群（薄荷绿）
 
-  // 每个肌群由若干 SVG 图元组成：{id, view:'front'|'back', shapes:[...]}
-  // shape 类型：ellipse(cx,cy,rx,ry) / rect(x,y,w,h,r) / path(d)
+  // 连贯人形轮廓（一整条 path，头/发单独画）
+  // 坐标以 x=80 为中线，y 从 8 到 283
+  var BODY_PATH =
+    'M75,50 C68,51 60,54 55,59 C48,67 44,86 42,106 ' +
+    'L38,152 Q37,160 43,160 L49,118 L57,95 L59,146 L61,162 ' +
+    'L59,224 L62,278 Q63,283 69,283 L73,278 L77,232 L80,182 ' +
+    'L83,232 L87,278 L91,283 Q97,283 98,278 L101,224 L99,162 ' +
+    'L101,146 L103,95 L111,118 L117,160 Q123,160 122,152 ' +
+    'L118,106 C116,86 112,67 105,59 C100,54 92,51 85,50 Z';
+
+  var HEAD = '<ellipse cx="80" cy="32" rx="15" ry="17" fill="' + BODY + '" stroke="' + EDGE + '" stroke-width="1"/>' +
+             '<path d="M66,28 Q70,15 80,15 Q90,15 94,28 Q87,22 80,22 Q73,22 66,28 Z" fill="' + HAIR + '"/>';
+
+  // 每个肌群由若干平滑 path 组成，贴合人形轮廓
   var MUSCLES = [
     // ============ 正面 ============
     { id: 'frontDelts', view: 'front', label: '三角肌前束', shapes: [
-      { t: 'ellipse', cx: 52, cy: 44, rx: 13, ry: 10 },
-      { t: 'ellipse', cx: 108, cy: 44, rx: 13, ry: 10 }
+      { t: 'path', d: 'M52,58 Q58,54 64,60 L63,74 Q55,78 50,71 Z' },
+      { t: 'path', d: 'M108,58 Q102,54 96,60 L97,74 Q105,78 110,71 Z' }
     ]},
     { id: 'chest', view: 'front', label: '胸大肌', shapes: [
-      { t: 'path', d: 'M60,58 Q72,52 82,60 L84,76 Q72,82 60,76 Z' },
-      { t: 'path', d: 'M78,60 Q88,52 100,58 L100,76 Q88,82 78,76 Z' }
+      { t: 'path', d: 'M64,72 Q72,67 79,73 L79,89 Q70,93 64,87 Z' },
+      { t: 'path', d: 'M96,72 Q88,67 81,73 L81,89 Q90,93 96,87 Z' }
     ]},
     { id: 'biceps', view: 'front', label: '肱二头肌', shapes: [
-      { t: 'ellipse', cx: 40, cy: 88, rx: 9, ry: 17 },
-      { t: 'ellipse', cx: 120, cy: 88, rx: 9, ry: 17 }
+      { t: 'path', d: 'M44,88 Q50,88 51,102 L50,114 Q44,116 42,109 Z' },
+      { t: 'path', d: 'M116,88 Q110,88 109,102 L110,114 Q116,116 118,109 Z' }
     ]},
     { id: 'forearms', view: 'front', label: '前臂肌群', shapes: [
-      { t: 'ellipse', cx: 36, cy: 122, rx: 7, ry: 18 },
-      { t: 'ellipse', cx: 124, cy: 122, rx: 7, ry: 18 }
+      { t: 'path', d: 'M41,120 Q47,120 48,134 L46,150 Q41,152 40,146 Z' },
+      { t: 'path', d: 'M119,120 Q113,120 112,134 L114,150 Q119,152 120,146 Z' }
     ]},
     { id: 'abs', view: 'front', label: '腹直肌', shapes: [
-      { t: 'rect', x: 66, y: 80, w: 28, h: 54, r: 6 }
+      { t: 'path', d: 'M72,97 Q76,95 79,97 L79,109 Q75,111 72,109 Z' },
+      { t: 'path', d: 'M72,112 Q76,110 79,112 L79,124 Q75,126 72,124 Z' },
+      { t: 'path', d: 'M72,127 Q76,125 79,127 L79,139 Q75,141 72,139 Z' },
+      { t: 'path', d: 'M81,97 Q84,95 88,97 L88,109 Q84,111 81,109 Z' },
+      { t: 'path', d: 'M81,112 Q84,110 88,112 L88,124 Q84,126 81,124 Z' },
+      { t: 'path', d: 'M81,127 Q84,125 88,127 L88,139 Q84,141 81,139 Z' }
     ]},
     { id: 'transverse', view: 'front', label: '腹横肌/腰侧', shapes: [
-      { t: 'path', d: 'M62,84 Q64,108 62,130 L68,130 Q70,106 68,84 Z' },
-      { t: 'path', d: 'M92,84 Q90,108 92,130 L98,130 Q96,106 98,84 Z' }
+      { t: 'path', d: 'M62,100 Q60,120 62,142 L67,141 Q65,120 67,100 Z' },
+      { t: 'path', d: 'M98,100 Q100,120 98,142 L93,141 Q95,120 93,100 Z' }
     ]},
     { id: 'obliques', view: 'front', label: '腹斜肌', shapes: [
-      { t: 'path', d: 'M60,88 Q56,108 62,126 L68,124 Q64,106 66,88 Z' },
-      { t: 'path', d: 'M94,88 Q98,108 92,126 L86,124 Q90,106 88,88 Z' }
+      { t: 'path', d: 'M60,104 Q57,120 61,136 L65,132 Q62,120 64,106 Z' },
+      { t: 'path', d: 'M100,104 Q103,120 99,136 L95,132 Q98,120 96,106 Z' }
     ]},
     { id: 'quads', view: 'front', label: '股四头肌', shapes: [
-      { t: 'ellipse', cx: 68, cy: 168, rx: 15, ry: 30 },
-      { t: 'ellipse', cx: 92, cy: 168, rx: 15, ry: 30 }
+      { t: 'path', d: 'M63,170 Q71,167 77,173 L75,220 Q68,224 61,218 Z' },
+      { t: 'path', d: 'M97,170 Q89,167 83,173 L85,220 Q92,224 99,218 Z' }
     ]},
     // ============ 背面 ============
     { id: 'traps', view: 'back', label: '斜方肌', shapes: [
-      { t: 'path', d: 'M60,58 Q80,48 100,58 L96,78 Q80,86 64,78 Z' }
+      { t: 'path', d: 'M64,58 Q80,52 96,58 L93,82 Q80,88 67,82 Z' }
     ]},
     { id: 'rearDelts', view: 'back', label: '三角肌后束', shapes: [
-      { t: 'ellipse', cx: 52, cy: 46, rx: 13, ry: 10 },
-      { t: 'ellipse', cx: 108, cy: 46, rx: 13, ry: 10 }
+      { t: 'path', d: 'M52,58 Q58,54 64,60 L63,74 Q55,78 50,71 Z' },
+      { t: 'path', d: 'M108,58 Q102,54 96,60 L97,74 Q105,78 110,71 Z' }
     ]},
     { id: 'rhomboids', view: 'back', label: '菱形肌', shapes: [
-      { t: 'path', d: 'M68,80 L80,76 L92,80 L88,98 L80,102 L72,98 Z' }
+      { t: 'path', d: 'M73,80 L80,76 L87,80 L84,96 L80,99 L76,96 Z' }
     ]},
     { id: 'lats', view: 'back', label: '背阔肌', shapes: [
-      { t: 'path', d: 'M62,82 Q52,100 58,126 L76,132 Q72,104 78,84 Z' },
-      { t: 'path', d: 'M98,82 Q108,100 102,126 L84,132 Q88,104 82,84 Z' }
+      { t: 'path', d: 'M62,88 Q55,106 61,138 L76,141 Q74,110 78,90 Z' },
+      { t: 'path', d: 'M98,88 Q105,106 99,138 L84,141 Q86,110 82,90 Z' }
     ]},
     { id: 'erectors', view: 'back', label: '竖脊肌', shapes: [
-      { t: 'rect', x: 74, y: 100, w: 12, h: 38, r: 4 }
+      { t: 'path', d: 'M77,100 L83,100 L82,142 L78,142 Z' }
     ]},
     { id: 'triceps', view: 'back', label: '肱三头肌', shapes: [
-      { t: 'ellipse', cx: 40, cy: 88, rx: 9, ry: 17 },
-      { t: 'ellipse', cx: 120, cy: 88, rx: 9, ry: 17 }
+      { t: 'path', d: 'M44,88 Q50,88 51,102 L50,114 Q44,116 42,109 Z' },
+      { t: 'path', d: 'M116,88 Q110,88 109,102 L110,114 Q116,116 118,109 Z' }
     ]},
     { id: 'glutes', view: 'back', label: '臀大肌', shapes: [
-      { t: 'ellipse', cx: 68, cy: 144, rx: 15, ry: 15 },
-      { t: 'ellipse', cx: 92, cy: 144, rx: 15, ry: 15 }
+      { t: 'path', d: 'M62,150 Q71,146 78,152 L77,172 Q69,176 61,170 Z' },
+      { t: 'path', d: 'M98,150 Q89,146 82,152 L83,172 Q91,176 99,170 Z' }
     ]},
     { id: 'hamstrings', view: 'back', label: '腘绳肌', shapes: [
-      { t: 'ellipse', cx: 68, cy: 178, rx: 14, ry: 28 },
-      { t: 'ellipse', cx: 92, cy: 178, rx: 14, ry: 28 }
+      { t: 'path', d: 'M62,176 Q70,172 76,178 L74,222 Q67,226 60,220 Z' },
+      { t: 'path', d: 'M98,176 Q90,172 84,178 L86,222 Q93,226 100,220 Z' }
     ]},
     { id: 'calves', view: 'back', label: '小腿三头肌', shapes: [
-      { t: 'ellipse', cx: 69, cy: 222, rx: 11, ry: 22 },
-      { t: 'ellipse', cx: 91, cy: 222, rx: 11, ry: 22 }
+      { t: 'path', d: 'M63,228 Q69,224 73,230 L71,268 Q66,272 62,266 Z' },
+      { t: 'path', d: 'M97,228 Q91,224 87,230 L89,268 Q94,272 98,266 Z' }
     ]}
   ];
 
-  // 人体的非肌肉基础轮廓（灰色底图，帮助定位）
-  var OUTLINE = {
-    front: [
-      { t: 'circle', cx: 80, cy: 22, r: 14 },
-      { t: 'rect', x: 74, y: 34, w: 12, h: 12, r: 3 },
-      { t: 'path', d: 'M64,56 Q80,50 96,56 L100,140 Q80,148 60,140 Z' },
-      { t: 'path', d: 'M52,108 L44,142 L52,144 L60,116 Z' },
-      { t: 'path', d: 'M108,108 L116,142 L108,144 L100,116 Z' },
-      { t: 'path', d: 'M62,198 L58,252 L70,252 L72,200 Z' },
-      { t: 'path', d: 'M88,198 L92,252 L80,252 L78,200 Z' }
-    ],
-    back: [
-      { t: 'circle', cx: 80, cy: 22, r: 14 },
-      { t: 'rect', x: 74, y: 34, w: 12, h: 12, r: 3 },
-      { t: 'path', d: 'M64,56 Q80,50 96,56 L100,140 Q80,148 60,140 Z' },
-      { t: 'path', d: 'M52,108 L44,142 L52,144 L60,116 Z' },
-      { t: 'path', d: 'M108,108 L116,142 L108,144 L100,116 Z' },
-      { t: 'path', d: 'M62,198 L58,252 L70,252 L72,200 Z' },
-      { t: 'path', d: 'M88,198 L92,252 L80,252 L78,200 Z' }
-    ]
-  };
-
-  function shapeStr(s, fill, stroke) {
-    var st = stroke ? ' stroke="' + stroke + '" stroke-width="1"' : '';
-    var f = ' fill="' + fill + '"' + st;
-    if (s.t === 'ellipse') return '<ellipse cx="' + s.cx + '" cy="' + s.cy + '" rx="' + s.rx + '" ry="' + s.ry + '"' + f + '/>';
-    if (s.t === 'circle') return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '"' + f + '/>';
-    if (s.t === 'rect') return '<rect x="' + s.x + '" y="' + s.y + '" width="' + s.w + '" height="' + s.h + '" rx="' + s.r + '"' + f + '/>';
-    if (s.t === 'path') return '<path d="' + s.d + '"' + f + '/>';
-    return '';
-  }
-
   function figureHTML(view, primary, second, xOffset) {
     var s = '<g transform="translate(' + xOffset + ',0)">';
-    // 底图轮廓
-    OUTLINE[view].forEach(function (o) { s += shapeStr(o, '#f1eef5', '#e2dcec'); });
-    // 肌群
+    // 连贯人形底图 + 头
+    s += '<path d="' + BODY_PATH + '" fill="' + BODY + '" stroke="' + EDGE + '" stroke-width="1.2" stroke-linejoin="round"/>';
+    s += HEAD;
+    // 肌群（细白描边形成分区缝，不割裂）
     MUSCLES.filter(function (m) { return m.view === view; }).forEach(function (m) {
       var color = BASE;
       if ((primary || []).indexOf(m.id) >= 0) color = PRIMARY;
       else if ((second || []).indexOf(m.id) >= 0) color = SECOND;
-      m.shapes.forEach(function (sp) { s += shapeStr(sp, color, '#ffffff'); });
+      m.shapes.forEach(function (sp) {
+        s += '<path d="' + sp.d + '" fill="' + color + '" stroke="' + BODY + '" stroke-width="0.8" stroke-linejoin="round"/>';
+      });
     });
     s += '</g>';
     return s;
@@ -131,9 +122,9 @@
   // 生成完整人体图 SVG
   // primary: 主发力肌群 ID 数组；second: 协同肌群 ID 数组
   function render(primary, second) {
-    return '<svg viewBox="0 0 320 270" width="100%" style="max-width:340px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">' +
-      '<text x="52" y="14" text-anchor="middle" font-size="11" fill="#8b8498">正面</text>' +
-      '<text x="212" y="14" text-anchor="middle" font-size="11" fill="#8b8498">背面</text>' +
+    return '<svg viewBox="0 0 320 292" width="100%" style="max-width:340px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">' +
+      '<text x="52" y="10" text-anchor="middle" font-size="11" fill="#9a92a6">正面</text>' +
+      '<text x="212" y="10" text-anchor="middle" font-size="11" fill="#9a92a6">背面</text>' +
       figureHTML('front', primary, second, -28) +
       figureHTML('back', primary, second, 132) +
       '</svg>';
