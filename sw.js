@@ -1,5 +1,5 @@
 /* 塑形打卡 Service Worker —— 离线缓存，让添加到主屏幕后断网也能打开 */
-const CACHE = 'health-pwa-v2';
+const CACHE = 'health-pwa-v3';
 const ASSETS = [
   './',
   './index.html',
